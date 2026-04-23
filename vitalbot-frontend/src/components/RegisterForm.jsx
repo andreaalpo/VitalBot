@@ -2,6 +2,7 @@ import { useState } from 'react'
 import styles from './AuthForms.module.css'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const MOCK_USERS_KEY = 'vitalbot_mock_users'
 
 function passwordOk(p) {
   return p.length >= 8
@@ -13,6 +14,17 @@ export default function RegisterForm() {
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [fieldError, setFieldError] = useState('')
+  const [successMsg, setSuccessMsg] = useState('')
+
+  function readMockUsers() {
+    try {
+      const data = localStorage.getItem(MOCK_USERS_KEY)
+      const users = JSON.parse(data || '[]')
+      return Array.isArray(users) ? users : []
+    } catch {
+      return []
+    }
+  }
 
   function validate() {
     if (!name.trim()) {
@@ -37,7 +49,35 @@ export default function RegisterForm() {
 
   function handleSubmit(e) {
     e.preventDefault()
+    setSuccessMsg('')
     if (!validate()) return
+
+    const users = readMockUsers()
+    const normalizedEmail = email.trim().toLowerCase()
+    const exists = users.some(
+      (user) => user.email?.toLowerCase() === normalizedEmail,
+    )
+
+    if (exists) {
+      setFieldError('Ese correo ya está registrado. Inicia sesión.')
+      return
+    }
+
+    const nextUsers = [
+      ...users,
+      {
+        name: name.trim(),
+        email: normalizedEmail,
+        password,
+      },
+    ]
+    localStorage.setItem(MOCK_USERS_KEY, JSON.stringify(nextUsers))
+    setFieldError('')
+    setSuccessMsg('Cuenta creada localmente. Ya puedes iniciar sesión.')
+    setName('')
+    setEmail('')
+    setPassword('')
+    setConfirm('')
   }
 
   return (
@@ -101,6 +141,12 @@ export default function RegisterForm() {
       {fieldError && (
         <p className={styles.alert} role="alert">
           {fieldError}
+        </p>
+      )}
+
+      {successMsg && (
+        <p className={styles.success} role="status">
+          {successMsg}
         </p>
       )}
 

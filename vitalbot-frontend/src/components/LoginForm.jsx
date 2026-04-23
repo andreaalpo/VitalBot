@@ -1,10 +1,22 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import styles from './AuthForms.module.css'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const MOCK_USERS_KEY = 'vitalbot_mock_users'
+
+function readMockUsers() {
+  try {
+    const data = localStorage.getItem(MOCK_USERS_KEY)
+    const users = JSON.parse(data || '[]')
+    return Array.isArray(users) ? users : []
+  } catch {
+    return []
+  }
+}
 
 export default function LoginForm() {
+  const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [fieldError, setFieldError] = useState('')
@@ -29,6 +41,35 @@ export default function LoginForm() {
   function handleSubmit(e) {
     e.preventDefault()
     if (!validate()) return
+
+    const emailNormalized = email.trim().toLowerCase()
+    const users = readMockUsers()
+    const matchedUser = users.find(
+      (user) =>
+        user.email?.toLowerCase() === emailNormalized && user.password === password,
+    )
+
+    // Si no hay usuarios registrados aún, permitimos acceso para seguir
+    // construyendo el frontend sin backend.
+    if (users.length > 0 && !matchedUser) {
+      setFieldError('Credenciales inválidas. Verifica correo y contraseña.')
+      return
+    }
+
+    const userName =
+      matchedUser?.name ||
+      emailNormalized.split('@')[0].replace(/\./g, ' ').trim() ||
+      'Usuario'
+
+    sessionStorage.setItem('vitalbot_token', `mock-token-${Date.now()}`)
+    sessionStorage.setItem(
+      'vitalbot_user',
+      JSON.stringify({
+        name: userName,
+        email: emailNormalized,
+      }),
+    )
+    navigate('/inicio', { replace: true })
   }
 
   return (
