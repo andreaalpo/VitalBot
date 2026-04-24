@@ -1,25 +1,20 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { loginRequest } from '../api/auth.js'
 import styles from './AuthForms.module.css'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-const MOCK_USERS_KEY = 'vitalbot_mock_users'
 
-function readMockUsers() {
-  try {
-    const data = localStorage.getItem(MOCK_USERS_KEY)
-    const users = JSON.parse(data || '[]')
-    return Array.isArray(users) ? users : []
-  } catch {
-    return []
-  }
-}
+const GENERIC_AUTH_ERROR =
+  'Las credenciales no son válidas. Verifica tu correo y contraseña.'
 
 export default function LoginForm() {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [fieldError, setFieldError] = useState('')
+  const [submitError, setSubmitError] = useState('')
+  const [loading, setLoading] = useState(false)
 
   function validate() {
     if (!email.trim()) {
@@ -38,38 +33,42 @@ export default function LoginForm() {
     return true
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault()
+    setSubmitError('')
     if (!validate()) return
 
-    const emailNormalized = email.trim().toLowerCase()
-    const users = readMockUsers()
-    const matchedUser = users.find(
-      (user) =>
-        user.email?.toLowerCase() === emailNormalized && user.password === password,
-    )
-
-    // Si no hay usuarios registrados aún, permitimos acceso para seguir
-    // construyendo el frontend sin backend.
-    if (users.length > 0 && !matchedUser) {
-      setFieldError('Credenciales inválidas. Verifica correo y contraseña.')
-      return
+    setLoading(true)
+    try {
+      const data = await loginRequest(email, password)
+      const token = data.token || data.accessToken
+      if (!token) {
+        setSubmitError(
+          'Respuesta del servidor incompleta. Revisa el backend.',
+        )
+        return
+      }
+      sessionStorage.setItem('vitalbot_token', token)
+      if (data.user) {
+        sessionStorage.setItem('vitalbot_user', JSON.stringify(data.user))
+      }
+      navigate('/inicio', { replace: true })
+    } catch (err) {
+      if (err instanceof TypeError) {
+        setSubmitError(
+          'No se pudo conectar con el servidor. ¿Está corriendo el API en el puerto 3000?',
+        )
+        return
+      }
+      const msg = err.message || ''
+      if (msg.includes('credenciales') || msg.includes('inválid')) {
+        setSubmitError(GENERIC_AUTH_ERROR)
+      } else {
+        setSubmitError(msg || GENERIC_AUTH_ERROR)
+      }
+    } finally {
+      setLoading(false)
     }
-
-    const userName =
-      matchedUser?.name ||
-      emailNormalized.split('@')[0].replace(/\./g, ' ').trim() ||
-      'Usuario'
-
-    sessionStorage.setItem('vitalbot_token', `mock-token-${Date.now()}`)
-    sessionStorage.setItem(
-      'vitalbot_user',
-      JSON.stringify({
-        name: userName,
-        email: emailNormalized,
-      }),
-    )
-    navigate('/inicio', { replace: true })
   }
 
   return (
@@ -86,6 +85,7 @@ export default function LoginForm() {
         placeholder="correo@ejemplo.com"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
+        disabled={loading}
       />
 
       <label className={styles.label} htmlFor="login-password">
@@ -100,6 +100,7 @@ export default function LoginForm() {
         placeholder="••••••••"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
+        disabled={loading}
       />
 
       <div className={styles.rowLink}>
@@ -112,14 +113,14 @@ export default function LoginForm() {
         </Link>
       </div>
 
-      {fieldError && (
+      {(fieldError || submitError) && (
         <p className={styles.alert} role="alert">
-          {fieldError}
+          {submitError || fieldError}
         </p>
       )}
 
-      <button type="submit" className={styles.submit}>
-        Ingresar →
+      <button type="submit" className={styles.submit} disabled={loading}>
+        {loading ? 'Ingresando…' : 'Ingresar →'}
       </button>
     </form>
   )

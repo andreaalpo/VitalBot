@@ -1,30 +1,23 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { registerRequest } from '../api/auth.js'
 import styles from './AuthForms.module.css'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-const MOCK_USERS_KEY = 'vitalbot_mock_users'
 
 function passwordOk(p) {
   return p.length >= 8
 }
 
 export default function RegisterForm() {
+  const navigate = useNavigate()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [fieldError, setFieldError] = useState('')
   const [successMsg, setSuccessMsg] = useState('')
-
-  function readMockUsers() {
-    try {
-      const data = localStorage.getItem(MOCK_USERS_KEY)
-      const users = JSON.parse(data || '[]')
-      return Array.isArray(users) ? users : []
-    } catch {
-      return []
-    }
-  }
+  const [loading, setLoading] = useState(false)
 
   function validate() {
     if (!name.trim()) {
@@ -47,37 +40,46 @@ export default function RegisterForm() {
     return true
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault()
     setSuccessMsg('')
     if (!validate()) return
 
-    const users = readMockUsers()
-    const normalizedEmail = email.trim().toLowerCase()
-    const exists = users.some(
-      (user) => user.email?.toLowerCase() === normalizedEmail,
-    )
-
-    if (exists) {
-      setFieldError('Ese correo ya está registrado. Inicia sesión.')
-      return
-    }
-
-    const nextUsers = [
-      ...users,
-      {
+    setLoading(true)
+    try {
+      const data = await registerRequest({
         name: name.trim(),
-        email: normalizedEmail,
+        email: email.trim(),
         password,
-      },
-    ]
-    localStorage.setItem(MOCK_USERS_KEY, JSON.stringify(nextUsers))
-    setFieldError('')
-    setSuccessMsg('Cuenta creada localmente. Ya puedes iniciar sesión.')
-    setName('')
-    setEmail('')
-    setPassword('')
-    setConfirm('')
+      })
+      const token = data.token || data.accessToken
+      if (token) {
+        sessionStorage.setItem('vitalbot_token', token)
+        if (data.user) {
+          sessionStorage.setItem('vitalbot_user', JSON.stringify(data.user))
+        }
+        setFieldError('')
+        setSuccessMsg('Cuenta creada. Entrando…')
+        navigate('/inicio', { replace: true })
+        return
+      }
+      setFieldError('')
+      setSuccessMsg('Cuenta creada. Ya puedes iniciar sesión.')
+      setName('')
+      setEmail('')
+      setPassword('')
+      setConfirm('')
+    } catch (err) {
+      if (err instanceof TypeError) {
+        setFieldError(
+          'No se pudo conectar con el servidor. ¿Está corriendo el API en el puerto 3000?',
+        )
+      } else {
+        setFieldError(err.message || 'No se pudo completar el registro.')
+      }
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -94,6 +96,7 @@ export default function RegisterForm() {
         placeholder="Juan Pérez"
         value={name}
         onChange={(e) => setName(e.target.value)}
+        disabled={loading}
       />
 
       <label className={styles.label} htmlFor="reg-email">
@@ -108,6 +111,7 @@ export default function RegisterForm() {
         placeholder="correo@ejemplo.com"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
+        disabled={loading}
       />
 
       <label className={styles.label} htmlFor="reg-password">
@@ -122,6 +126,7 @@ export default function RegisterForm() {
         placeholder="Mínimo 8 caracteres"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
+        disabled={loading}
       />
 
       <label className={styles.label} htmlFor="reg-confirm">
@@ -136,6 +141,7 @@ export default function RegisterForm() {
         placeholder="Repite la contraseña"
         value={confirm}
         onChange={(e) => setConfirm(e.target.value)}
+        disabled={loading}
       />
 
       {fieldError && (
@@ -150,8 +156,8 @@ export default function RegisterForm() {
         </p>
       )}
 
-      <button type="submit" className={styles.submit}>
-        Crear Cuenta →
+      <button type="submit" className={styles.submit} disabled={loading}>
+        {loading ? 'Creando cuenta…' : 'Crear Cuenta →'}
       </button>
     </form>
   )
