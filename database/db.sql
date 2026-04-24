@@ -3,11 +3,17 @@ create table public.usuario(
     nombre_completo varchar(100) not null,
     correo_electronico varchar(100) not null,
     password_hash varchar(255) not null,
+    rol varchar(20) not null default 'usuario'::character varying,
+    telefono varchar(20) null,
+    fecha_nacimiento date null,
+    genero varchar(30) null,
+    ciudad varchar(100) null,
     activo boolean not null default false::boolean,
     creado_en timestamp not null,
     actualizado_en timestamp not null,
     constraint usuario_pkey primary key (id),
-    constraint usuario_correo_electronico_key unique (correo_electronico)
+    constraint usuario_correo_electronico_key unique (correo_electronico),
+    constraint usuario_rol_check check (rol in ('usuario', 'administrador'))
 );
 
 create table public.consentimiento_informado(

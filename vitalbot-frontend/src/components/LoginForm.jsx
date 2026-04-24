@@ -52,7 +52,8 @@ export default function LoginForm() {
       if (data.user) {
         sessionStorage.setItem('vitalbot_user', JSON.stringify(data.user))
       }
-      navigate('/inicio', { replace: true })
+      const isAdminUser = data.user?.role === 'administrador'
+      navigate(isAdminUser ? '/admin' : '/inicio', { replace: true })
     } catch (err) {
       if (err instanceof TypeError) {
         setSubmitError(

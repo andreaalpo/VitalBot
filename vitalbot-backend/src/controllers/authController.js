@@ -2,6 +2,7 @@ import * as authService from '../services/authService.js'
 
 export async function register(req, res, next) {
   try {
+    // Solo RF-01: usuario final (rol "usuario" en BD). No se acepta rol por body.
     const { name, email, password } = req.body || {}
 
     if (!name?.trim() || !email?.trim() || !password) {
@@ -31,6 +32,24 @@ export async function me(req, res, next) {
       return res.status(404).json({ message: 'Usuario no encontrado o inactivo.' })
     }
     return res.json({ user })
+  } catch (e) {
+    next(e)
+  }
+}
+
+export async function patchMe(req, res, next) {
+  try {
+    const userId = Number(req.user.id)
+    if (!Number.isFinite(userId)) {
+      return res.status(400).json({ message: 'Sesión inválida.' })
+    }
+    const result = await authService.patchProfile(userId, req.body || {})
+    if (!result) {
+      return res.status(404).json({ message: 'Usuario no encontrado o inactivo.' })
+    }
+    const payload = { user: result.user }
+    if (result.token) payload.token = result.token
+    return res.json(payload)
   } catch (e) {
     next(e)
   }

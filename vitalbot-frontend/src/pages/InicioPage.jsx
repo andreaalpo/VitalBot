@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import styles from './InicioPage.module.css'
 
 export default function InicioPage() {
@@ -11,6 +11,7 @@ export default function InicioPage() {
       return null
     }
   }, [])
+  const isAdminUser = user?.role === 'administrador'
 
   function logout() {
     sessionStorage.removeItem('vitalbot_token')
@@ -79,6 +80,22 @@ export default function InicioPage() {
             </li>
           </ul>
         </section>
+
+        {isAdminUser && (
+          <Link
+            to="/admin"
+            style={{
+              display: 'block',
+              textAlign: 'center',
+              marginBottom: '0.75rem',
+              color: '#1e3a8a',
+              fontWeight: 600,
+              fontSize: '0.9rem',
+            }}
+          >
+            Panel administrativo →
+          </Link>
+        )}
 
         <button type="button" className={styles.logout} onClick={logout}>
           ⛔ Cerrar Sesión

@@ -1,0 +1,218 @@
+.shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
+.sidebar {
+  background: #1e293b;
+  border-right: 1px solid #334155;
+  padding: 1.25rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.brand {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #6ee7b7;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.navItem {
+  color: #cbd5e1;
+  text-decoration: none;
+  padding: 0.5rem 0.65rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.navItem:hover {
+  background: #334155;
+}
+
+.navItemActive {
+  background: #334155;
+  color: #6ee7b7;
+}
+
+.footer {
+  margin-top: auto;
+  padding-top: 1rem;
+}
+
+.footer button {
+  width: 100%;
+  padding: 0.5rem;
+  background: transparent;
+  border: 1px solid #475569;
+  color: #e2e8f0;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.footer button:hover {
+  background: #334155;
+}
+
+.main {
+  padding: 1.5rem 2rem;
+  overflow-x: auto;
+}
+
+.h1 {
+  margin: 0 0 0.5rem;
+  font-size: 1.5rem;
+}
+
+.sub {
+  margin: 0 0 1.5rem;
+  color: #94a3b8;
+  font-size: 0.95rem;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.card {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.card strong {
+  display: block;
+  font-size: 1.5rem;
+  color: #6ee7b7;
+}
+
+.card span {
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+
+.tableWrap {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  overflow: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.table th,
+.table td {
+  text-align: left;
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid #334155;
+}
+
+.table th {
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.actions button {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  border: 1px solid #475569;
+  background: #334155;
+  color: #e2e8f0;
+  cursor: pointer;
+}
+
+.actions button.danger {
+  border-color: #b91c1c;
+  color: #fecaca;
+}
+
+.form {
+  display: grid;
+  gap: 0.75rem;
+  max-width: 520px;
+  margin-bottom: 1.5rem;
+}
+
+.form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+  color: #94a3b8;
+}
+
+.form input,
+.form select,
+.form textarea {
+  padding: 0.45rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #475569;
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
+.form textarea {
+  min-height: 100px;
+  font-family: inherit;
+}
+
+.submit {
+  padding: 0.5rem 1rem;
+  background: #059669;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  width: fit-content;
+}
+
+.submit:hover {
+  background: #047857;
+}
+
+.alert {
+  padding: 0.75rem;
+  background: #450a0a;
+  border: 1px solid #b91c1c;
+  color: #fecaca;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  background: #334155;
+}
+
+.badge.admin {
+  background: #422006;
+  color: #fdba74;
+}
