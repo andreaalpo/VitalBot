@@ -25,6 +25,21 @@ export function isDatabaseConfigured() {
   return Boolean(pgsql.host && pgsql.user && pgsql.database)
 }
 
+/** Resend: recuperación de contraseña y correos transaccionales */
+export const resend = {
+  apiKey: process.env.RESEND_API_KEY?.trim() || '',
+  /** Remitente verificado en Resend; sin dominio propio suele usarse onboarding@resend.dev */
+  from: process.env.RESEND_FROM?.trim() || 'onboarding@resend.dev',
+}
+
+export function isResendConfigured() {
+  return Boolean(resend.apiKey)
+}
+
+/** URL del front (Vite en este repo usa 8080) para enlaces en correos */
+export const FRONTEND_URL =
+  process.env.FRONTEND_URL?.trim() || 'http://localhost:8080'
+
 export const env = {
   PORT: Number(process.env.PORT) || 3000,
   DATABASE_URL,

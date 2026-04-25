@@ -75,3 +75,37 @@ export async function login(req, res, next) {
     next(e)
   }
 }
+
+export async function forgotPassword(req, res, next) {
+  try {
+    const { email, redirectOrigin } = req.body || {}
+    const redirectHint =
+      (redirectOrigin && String(redirectOrigin).trim()) ||
+      req.get('origin')?.trim() ||
+      ''
+    const result = await authService.requestPasswordReset(email, redirectHint)
+    return res.json(result)
+  } catch (e) {
+    next(e)
+  }
+}
+
+export async function resetPassword(req, res, next) {
+  try {
+    const { password } = req.body || {}
+    const rawToken = req.body?.token
+    const token =
+      typeof rawToken === 'string'
+        ? rawToken
+        : rawToken != null
+          ? String(rawToken)
+          : ''
+    const result = await authService.resetPasswordWithToken(
+      { token, newPassword: password },
+      req,
+    )
+    return res.json(result)
+  } catch (e) {
+    next(e)
+  }
+}

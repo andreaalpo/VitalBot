@@ -1,5 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import AuthPage from './pages/AuthPage.jsx'
+import ForgotPasswordPage from './pages/ForgotPasswordPage.jsx'
+import ResetPasswordPage from './pages/ResetPasswordPage.jsx'
 import InicioPage from './pages/InicioPage.jsx'
 import AdminLayout from './pages/admin/AdminLayout.jsx'
 import AdminDashboardPage from './pages/admin/AdminDashboardPage.jsx'
@@ -23,6 +25,9 @@ export default function App() {
   return (
     <Routes>
       <Route path="/" element={<AuthPage />} />
+      <Route path="/recuperar" element={<ForgotPasswordPage />} />
+      <Route path="/restablecer" element={<ResetPasswordPage />} />
+      <Route path="/restablecer/" element={<ResetPasswordPage />} />
       <Route
         path="/inicio"
         element={

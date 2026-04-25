@@ -105,11 +105,7 @@ export default function LoginForm() {
       />
 
       <div className={styles.rowLink}>
-        <Link
-          className={styles.forgotLink}
-          to="/recuperar"
-          onClick={(e) => e.preventDefault()}
-        >
+        <Link className={styles.forgotLink} to="/recuperar">
           ¿Olvidaste tu contraseña?
         </Link>
       </div>

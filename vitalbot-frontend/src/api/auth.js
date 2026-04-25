@@ -31,3 +31,40 @@ export async function registerRequest({ name, email, password }) {
   }
   return data
 }
+
+export async function forgotPasswordRequest(email) {
+  const redirectOrigin =
+    typeof window !== 'undefined' ? window.location.origin : undefined
+  const res = await fetch('/api/auth/forgot-password', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({
+      email: email.trim(),
+      ...(redirectOrigin ? { redirectOrigin } : {}),
+    }),
+  })
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok) {
+    throw new Error(
+      data.message || 'No se pudo procesar la solicitud. Intenta de nuevo.',
+    )
+  }
+  return data
+}
+
+export async function resetPasswordRequest(token, password) {
+  const res = await fetch('/api/auth/reset-password', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ token, password }),
+  })
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok) {
+    throw new Error(
+      data.message || 'No se pudo actualizar la contraseña. El enlace pudo caducar.',
+    )
+  }
+  return data
+}

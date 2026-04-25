@@ -1,9 +1,18 @@
+import crypto from 'crypto'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import { env } from '../config/env.js'
 import * as userModel from '../models/userModel.js'
+import * as passwordResetModel from '../models/passwordResetModel.js'
+import { sendPasswordResetEmail } from './emailService.js'
+import { resolvePasswordResetBaseUrl } from '../utils/passwordResetPublicUrl.js'
 
 const BCRYPT_ROUNDS = 10
+
+const FORGOT_PASSWORD_RESPONSE = {
+  message:
+    'Si ese correo está registrado, recibirás un enlace para restablecer la contraseña.',
+}
 
 function formatDate(d) {
   if (!d) return null
@@ -213,4 +222,80 @@ export async function login({ email, password }, req) {
     token,
     user: publicUser(user),
   }
+}
+
+/**
+ * Solicitud de recuperación: misma respuesta siempre para no filtrar correos registrados.
+ * Solo envía correo si el usuario existe, está activo y Resend está configurado.
+ */
+export async function requestPasswordReset(email, redirectHint) {
+  const normalized = String(email || '').trim().toLowerCase()
+  if (!normalized) {
+    const err = new Error('Indica tu correo electrónico.')
+    err.status = 400
+    throw err
+  }
+
+  const user = await userModel.findByEmailNormalized(normalized)
+  if (!user || !user.activo) {
+    return { ...FORGOT_PASSWORD_RESPONSE }
+  }
+
+  const rawToken = crypto.randomBytes(32).toString('hex')
+  const tokenHash = passwordResetModel.hashRecoveryTokenPlain(rawToken)
+
+  await passwordResetModel.invalidateActiveTokensForUser(user.id)
+  await passwordResetModel.insertRecoveryToken(user.id, tokenHash)
+
+  const frontendBase = resolvePasswordResetBaseUrl(redirectHint)
+
+  await sendPasswordResetEmail({
+    to: user.correo_electronico,
+    rawToken,
+    frontendBase,
+  })
+
+  return { ...FORGOT_PASSWORD_RESPONSE }
+}
+
+export async function resetPasswordWithToken({ token, newPassword }, req) {
+  const ip = clientIp(req)
+  const raw = String(token || '').trim()
+  if (!raw) {
+    const err = new Error('Falta el token de recuperación.')
+    err.status = 400
+    throw err
+  }
+  if (!newPassword || String(newPassword).length < 8) {
+    const err = new Error('La contraseña debe tener al menos 8 caracteres.')
+    err.status = 400
+    throw err
+  }
+
+  const tokenHash = passwordResetModel.hashRecoveryTokenPlain(raw)
+  const row = await passwordResetModel.findValidByTokenHash(tokenHash)
+  if (!row) {
+    const err = new Error(
+      'El enlace no es válido o ha caducado. Solicita uno nuevo desde «Olvidé mi contraseña».',
+    )
+    err.status = 400
+    throw err
+  }
+
+  const passwordHash = await bcrypt.hash(String(newPassword), BCRYPT_ROUNDS)
+  await passwordResetModel.completePasswordResetInTransaction(
+    row.id,
+    row.usuario_id,
+    passwordHash,
+  )
+
+  await userModel.insertAuthLog({
+    usuarioId: row.usuario_id,
+    tipo: 'password_reset',
+    ipCliente: ip,
+    exitoso: true,
+    detalle: 'Contraseña actualizada por enlace de recuperación',
+  })
+
+  return { message: 'Tu contraseña se actualizó correctamente. Ya podés iniciar sesión.' }
 }
