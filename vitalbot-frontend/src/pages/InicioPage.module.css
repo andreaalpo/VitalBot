@@ -312,6 +312,37 @@
   background-size: 20px 20px;
 }
 
+.messageList {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.messageWrapperBot {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.messageWrapperUser {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.userBubble {
+  max-width: 500px;
+  background: #1e3a8a;
+  color: #ffffff;
+  border-radius: 20px 20px 4px 20px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  padding: 1rem 1.25rem;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.userBubble p {
+  margin: 0;
+}
+
 .botBubble {
   max-width: 500px;
   background: #ffffff;
@@ -331,6 +362,70 @@
 
 .botBubble p:last-of-type {
   margin-bottom: 0;
+}
+
+/* Typing Indicator */
+.typingIndicator {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1rem 1.5rem;
+}
+
+.typingIndicator .dot {
+  width: 8px;
+  height: 8px;
+  background-color: #94a3b8;
+  border-radius: 50%;
+  animation: bounce 1.4s infinite ease-in-out both;
+}
+
+.typingIndicator .dot:nth-child(1) { animation-delay: -0.32s; }
+.typingIndicator .dot:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes bounce {
+  0%, 80%, 100% { transform: scale(0); }
+  40% { transform: scale(1); }
+}
+
+/* References */
+.referencesContainer {
+  margin-top: 1rem;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 0.5rem;
+}
+
+.referencesList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.referenceCard {
+  display: block;
+  text-decoration: none;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 0.75rem;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.referenceCard:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.referenceTitle {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 0.25rem;
+}
+
+.referenceUrl {
+  font-size: 0.75rem;
+  color: #059669;
 }
 
 .listen {

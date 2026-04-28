@@ -1,11 +1,16 @@
-/**
- * Módulo chatbot — reservado. La lógica conversacional y reglas médicas
- * se implementará en una fase posterior (RF-03 en adelante).
- */
-export function notImplemented(req, res) {
-  res.status(501).json({
-    message:
-      'El módulo de chatbot aún no está implementado en el servidor.',
-    code: 'CHATBOT_NOT_IMPLEMENTED',
-  })
+import { processMessage } from '../services/chatbotService.js'
+
+export async function sendMessage(req, res, next) {
+  try {
+    const { message } = req.body
+
+    if (!message) {
+      return res.status(400).json({ error: 'El mensaje es requerido' })
+    }
+
+    const response = await processMessage(message)
+    res.json(response)
+  } catch (error) {
+    next(error)
+  }
 }

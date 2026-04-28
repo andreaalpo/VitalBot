@@ -1,9 +1,11 @@
 import { Router } from 'express'
 import * as chatbotController from '../controllers/chatbotController.js'
 
+import { requireAuth } from '../middleware/authMiddleware.js'
+
 const router = Router()
 
-router.post('/message', chatbotController.notImplemented)
-router.get('/status', chatbotController.notImplemented)
+// Proteger la ruta de chat (opcional, pero recomendado)
+router.post('/message', requireAuth, chatbotController.sendMessage)
 
 export default router

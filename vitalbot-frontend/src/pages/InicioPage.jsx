@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState, useRef, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import styles from './InicioPage.module.css'
 
@@ -12,6 +12,27 @@ export default function InicioPage() {
     }
   }, [])
   const isAdminUser = user?.role === 'administrador'
+  
+  const displayName = user?.name || 'Esteban'
+  const displayEmail = user?.email || 'prueba@example.com'
+  const avatarLetter = displayName.charAt(0).toUpperCase()
+
+  const [messages, setMessages] = useState([
+    {
+      role: 'bot',
+      text: `**¡Hola, ${displayName}!** Soy VitalBot.\n\nEstoy aquí para orientarte sobre tus síntomas y ayudarte a entender mejor qué podría estar pasando. ¿En qué te puedo ayudar hoy?`,
+      references: []
+    }
+  ])
+  const [inputText, setInputText] = useState('')
+  const [isTyping, setIsTyping] = useState(false)
+  const chatBodyRef = useRef(null)
+
+  useEffect(() => {
+    if (chatBodyRef.current) {
+      chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight
+    }
+  }, [messages, isTyping])
 
   function logout() {
     sessionStorage.removeItem('vitalbot_token')
@@ -19,9 +40,58 @@ export default function InicioPage() {
     navigate('/', { replace: true })
   }
 
-  const displayName = user?.name || 'Esteban'
-  const displayEmail = user?.email || 'prueba@example.com'
-  const avatarLetter = displayName.charAt(0).toUpperCase()
+  const handleSend = async (e) => {
+    if (e) e.preventDefault()
+    if (!inputText.trim()) return
+
+    const userMsg = inputText.trim()
+    setInputText('')
+    setMessages(prev => [...prev, { role: 'user', text: userMsg }])
+    setIsTyping(true)
+
+    try {
+      const token = sessionStorage.getItem('vitalbot_token')
+      const res = await fetch('http://localhost:3000/api/chatbot/message', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ message: userMsg })
+      })
+
+      const data = await res.json()
+      
+      if (!res.ok) {
+        throw new Error(data.error || 'Error de conexión')
+      }
+
+      setMessages(prev => [...prev, { 
+        role: 'bot', 
+        text: data.text,
+        references: data.references || []
+      }])
+    } catch (error) {
+      console.error(error)
+      setMessages(prev => [...prev, { 
+        role: 'bot', 
+        text: 'Lo siento, tuve un problema al procesar tu mensaje. Inténtalo de nuevo más tarde.' 
+      }])
+    } finally {
+      setIsTyping(false)
+    }
+  }
+
+  // Simple Markdown parser to render bold text
+  const renderText = (text) => {
+    const parts = text.split(/(\*\*.*?\*\*)/g)
+    return parts.map((part, index) => {
+      if (part.startsWith('**') && part.endsWith('**')) {
+        return <strong key={index}>{part.slice(2, -2)}</strong>
+      }
+      return <span key={index}>{part}</span>
+    })
+  }
 
   return (
     <div className={styles.page}>
@@ -50,7 +120,7 @@ export default function InicioPage() {
           </div>
         </section>
 
-        <button type="button" className={styles.newConsult}>
+        <button type="button" className={styles.newConsult} onClick={() => window.location.reload()}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line>
           </svg>
@@ -137,17 +207,53 @@ export default function InicioPage() {
           </div>
         </header>
 
-        <section className={styles.chatBody}>
-          <article className={styles.botBubble}>
-            <p><strong>¡Hola, {displayName}!</strong> Soy VitalBot.</p>
-            <p>Estoy aquí para orientarte sobre tus síntomas y ayudarte a entender mejor qué podría estar pasando. ¿En qué te puedo ayudar hoy?</p>
-            <button type="button" className={styles.listen}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-              </svg>
-              Escuchar
-            </button>
-          </article>
+        <section className={styles.chatBody} ref={chatBodyRef}>
+          <div className={styles.messageList}>
+            {messages.map((msg, idx) => (
+              <div key={idx} className={msg.role === 'user' ? styles.messageWrapperUser : styles.messageWrapperBot}>
+                <article className={msg.role === 'user' ? styles.userBubble : styles.botBubble}>
+                  {msg.text.split('\n').map((paragraph, pIdx) => (
+                    <p key={pIdx} style={{ minHeight: paragraph ? 'auto' : '1rem' }}>
+                      {renderText(paragraph)}
+                    </p>
+                  ))}
+                  
+                  {msg.role === 'bot' && idx === 0 && (
+                    <button type="button" className={styles.listen}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                      </svg>
+                      Escuchar
+                    </button>
+                  )}
+
+                  {msg.references && msg.references.length > 0 && (
+                    <div className={styles.referencesContainer}>
+                      <h4 style={{ margin: '1rem 0 0.5rem', fontSize: '0.9rem', color: '#64748b' }}>Fuentes de MedlinePlus:</h4>
+                      <div className={styles.referencesList}>
+                        {msg.references.map((ref, rIdx) => (
+                          <a key={rIdx} href={ref.url} target="_blank" rel="noopener noreferrer" className={styles.referenceCard}>
+                            <div className={styles.referenceTitle}>{ref.title}</div>
+                            <div className={styles.referenceUrl}>{new URL(ref.url).hostname}</div>
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </article>
+              </div>
+            ))}
+            
+            {isTyping && (
+              <div className={styles.messageWrapperBot}>
+                <article className={`${styles.botBubble} ${styles.typingIndicator}`}>
+                  <span className={styles.dot}></span>
+                  <span className={styles.dot}></span>
+                  <span className={styles.dot}></span>
+                </article>
+              </div>
+            )}
+          </div>
         </section>
 
         <footer className={styles.chatFooter}>
@@ -157,18 +263,20 @@ export default function InicioPage() {
             </svg>
             Sin emergencias: si sientes riesgo de vida, acude o llama a Urgencias de inmediato.
           </p>
-          <div className={styles.inputRow}>
+          <form className={styles.inputRow} onSubmit={handleSend}>
             <input
               type="text"
               placeholder="Ej: Tengo fiebre alta desde hace 2 días y dolor muscular..."
-              readOnly
+              value={inputText}
+              onChange={(e) => setInputText(e.target.value)}
+              disabled={isTyping}
             />
-            <button type="button" className={styles.sendBtn}>
+            <button type="submit" className={styles.sendBtn} disabled={isTyping || !inputText.trim()}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: '-2px' }}>
                 <line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
               </svg>
             </button>
-          </div>
+          </form>
         </footer>
       </main>
     </div>
