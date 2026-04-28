@@ -82,12 +82,29 @@ export default function InicioPage() {
     }
   }
 
-  // Simple Markdown parser to render bold text
+  // Simple Markdown parser to render bold text and links
   const renderText = (text) => {
-    const parts = text.split(/(\*\*.*?\*\*)/g)
+    const parts = text.split(/(\*\*.*?\*\*|\[.*?\]\(.*?\))/g)
     return parts.map((part, index) => {
       if (part.startsWith('**') && part.endsWith('**')) {
         return <strong key={index}>{part.slice(2, -2)}</strong>
+      }
+      if (part.startsWith('[') && part.includes('](') && part.endsWith(')')) {
+        const titleMatch = part.match(/\[(.*?)\]/)
+        const urlMatch = part.match(/\((.*?)\)/)
+        if (titleMatch && urlMatch) {
+          return (
+            <a 
+              key={index} 
+              href={urlMatch[1]} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              style={{ color: '#2563eb', textDecoration: 'underline', fontWeight: '500' }}
+            >
+              {titleMatch[1]}
+            </a>
+          )
+        }
       }
       return <span key={index}>{part}</span>
     })

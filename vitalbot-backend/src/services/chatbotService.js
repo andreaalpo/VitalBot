@@ -59,6 +59,10 @@ export async function processMessage(userMessage) {
     try {
       const results = await searchMedline(mainSymptom)
       references = results.slice(0, 3) // Tomar los 3 primeros resultados
+      
+      if (results.length > 0) {
+        botText += `\n\nSegún la Biblioteca Nacional de Medicina sobre **${results[0].title}**: \n"${results[0].snippet}"\n`
+      }
     } catch (error) {
       console.error('[chatbotService] Error en MedlinePlus:', error)
     }
@@ -71,12 +75,14 @@ export async function processMessage(userMessage) {
       const results = await searchMedline(userMessage)
       
       if (results.length > 0) {
-        botText += `Esto es lo que encontré:`
+        botText += `Esto es lo que encontré sobre **${results[0].title}**:\n\n> "${results[0].snippet}"\n`
+        botText += `\n*(Nota: Si buscabas un medicamento específico, es posible que el resultado sea general. Puedes [buscar en la Enciclopedia de MedlinePlus](https://vsearch.nlm.nih.gov/vivisimo/cgi-bin/query-meta?v:project=medlineplus-spanish&query=${encodeURIComponent(userMessage)}) para más detalles).*`
         references = results.slice(0, 3)
       } else {
         // Fallback si tampoco hay en MedlinePlus
         botText = `No he encontrado información sobre lo que mencionas en los "Temas de Salud" principales. `
-        botText += `Por favor, intenta darme más detalles o ser más específico (por ejemplo, mencionando un síntoma a la vez, como "dolor de estómago").`
+        botText += `Por favor, intenta darme más detalles o ser más específico (por ejemplo, mencionando un síntoma a la vez, como "dolor de estómago"). `
+        botText += `También puedes [buscar directamente en la base completa de MedlinePlus](https://vsearch.nlm.nih.gov/vivisimo/cgi-bin/query-meta?v:project=medlineplus-spanish&query=${encodeURIComponent(userMessage)}).`
       }
     } catch (error) {
       console.error('[chatbotService] Error en MedlinePlus:', error)

@@ -1,6 +1,6 @@
 /* Layout */
 .page {
-  min-height: 100vh;
+  height: 100vh;
   display: grid;
   grid-template-columns: minmax(300px, 25vw) 1fr;
   background: #f8fafc;
@@ -256,6 +256,8 @@
   flex-direction: column;
   background: #f8fafc;
   position: relative;
+  min-height: 0;
+  height: 100vh;
 }
 
 .chatHeader {
