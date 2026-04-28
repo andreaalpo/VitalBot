@@ -63,6 +63,27 @@ export default function InicioPage() {
           </ul>
         </section>
 
+        <section className={styles.library}>
+          <Link 
+            to="/biblioteca" 
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              color: '#1e3a8a',
+              textDecoration: 'none',
+              fontWeight: 600,
+              padding: '0.5rem',
+              backgroundColor: '#eff6ff',
+              borderRadius: '6px',
+              marginBottom: '1.5rem'
+            }}
+          >
+            <span style={{ fontSize: '1.2rem' }}>📚</span>
+            Biblioteca Médica
+          </Link>
+        </section>
+
         <section className={styles.risk}>
           <h3 className={styles.sideHeading}>NIVELES DE RIESGO</h3>
           <ul className={styles.riskList}>

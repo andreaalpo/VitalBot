@@ -3,6 +3,7 @@ import AuthPage from './pages/AuthPage.jsx'
 import ForgotPasswordPage from './pages/ForgotPasswordPage.jsx'
 import ResetPasswordPage from './pages/ResetPasswordPage.jsx'
 import InicioPage from './pages/InicioPage.jsx'
+import BibliotecaPage from './pages/BibliotecaPage.jsx'
 import AdminLayout from './pages/admin/AdminLayout.jsx'
 import AdminDashboardPage from './pages/admin/AdminDashboardPage.jsx'
 import AdminUsersPage from './pages/admin/AdminUsersPage.jsx'
@@ -33,6 +34,14 @@ export default function App() {
         element={
           <PrivateRoute>
             <InicioPage />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/biblioteca"
+        element={
+          <PrivateRoute>
+            <BibliotecaPage />
           </PrivateRoute>
         }
       />
