@@ -42,78 +42,87 @@ export default function BibliotecaPage() {
   return (
     <div className={styles.pageWrapper}>
       {/* Top Navigation Bar */}
-      <div className={styles.topBar}>
-        <div style={{ width: '100%', maxWidth: '1000px', margin: '0 auto', display: 'flex', justifyContent: 'space-between' }}>
-          <span>Un servicio integrado de VitalBot</span>
+      <nav className={styles.topBar}>
+        <div className={styles.topBarInner}>
           <Link to="/inicio" className={styles.topBarLink}>
-            ← Volver a Inicio
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Volver a Inicio
           </Link>
-        </div>
-      </div>
-
-      {/* Header with Logo */}
-      <header className={styles.headerContainer}>
-        <div className={styles.headerInner}>
-          <div className={styles.logoArea}>
-            <img src="/logo-vitalbot.png" alt="VitalBot Logo" className={styles.logoImg} />
-            <div>
-              <h1 className={styles.logoText}>VitalBot Library</h1>
-              <p className={styles.logoSub}>Información de salud confiable, impulsada por MedlinePlus</p>
-            </div>
+          <div className={styles.integrationBadge}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+            Verificado por MedlinePlus
           </div>
         </div>
-      </header>
+      </nav>
 
-      {/* Search Section */}
-      <section className={styles.searchSection}>
-        <form className={styles.searchForm} onSubmit={handleSearch}>
-          <input
-            type="text"
-            className={styles.searchInput}
-            placeholder="Buscar sobre enfermedades, síntomas o medicamentos..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
-          <button type="submit" className={styles.searchBtn} disabled={loading}>
-            {loading ? 'Buscando...' : 'Buscar'}
-          </button>
-        </form>
+      {/* Hero Section */}
+      <section className={styles.heroSection}>
+        <div className={styles.heroContent}>
+          <img src="/logo-vitalbot.png" alt="VitalBot Logo" className={styles.logoImg} />
+          <h1 className={styles.heroTitle}>Biblioteca Médica</h1>
+          <p className={styles.heroSub}>Encuentra información de salud oficial, clara y confiable sobre enfermedades, síntomas y medicamentos.</p>
+          
+          <form className={styles.searchForm} onSubmit={handleSearch}>
+            <input
+              type="text"
+              className={styles.searchInput}
+              placeholder="Ej: Asma, Ibuprofeno, Dolor de cabeza..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+            <button type="submit" className={styles.searchBtn} disabled={loading}>
+              {loading ? 'Buscando...' : 'Buscar'}
+            </button>
+          </form>
+        </div>
       </section>
 
       {/* Main Content Area */}
       <main className={styles.mainContent}>
         {error && (
           <div className={styles.errorBox}>
-            <strong>Error:</strong> {error}
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <span>{error}</span>
           </div>
         )}
 
         {!searched && !loading && !error && (
           <div className={styles.statusMessage}>
-            <p>Utiliza el buscador de arriba para encontrar información oficial y actualizada sobre temas de salud.</p>
+            <div className={styles.statusIcon}>📚</div>
+            <p style={{ margin: 0 }}>Escribe un término en el buscador para explorar la base de datos.</p>
           </div>
         )}
 
         {loading && (
           <div className={styles.statusMessage}>
-            <p>Consultando la base de datos de la Biblioteca Nacional de Medicina...</p>
+            <div className={styles.statusIcon}>⏳</div>
+            <p style={{ margin: 0 }}>Consultando la Biblioteca Nacional de Medicina...</p>
           </div>
         )}
 
         {searched && !loading && results.length === 0 && !error && (
           <div className={styles.statusMessage}>
-            <p>No se encontraron temas de salud principales para <strong>"{query}"</strong> en la API.</p>
-            <p style={{ marginTop: '1rem', fontSize: '0.95rem' }}>
-              <em>Nota: Esta herramienta consulta los "Temas de Salud", pero MedlinePlus tiene más información (Medicamentos, Enciclopedia) en su sitio web.</em>
+            <div className={styles.statusIcon}>🔍</div>
+            <p>No encontramos un <strong>Tema de Salud</strong> exacto para "{query}".</p>
+            <p style={{ fontSize: '0.95rem', maxWidth: '500px', margin: '0 auto 1.5rem auto' }}>
+              Nuestra conexión actual se enfoca en temas principales. Si buscas un medicamento específico o un artículo enciclopédico, búscalo en toda la red de MedlinePlus.
             </p>
             <a 
               href={`https://vsearch.nlm.nih.gov/vivisimo/cgi-bin/query-meta?v:project=medlineplus-spanish&query=${encodeURIComponent(query)}`}
               target="_blank"
               rel="noopener noreferrer"
-              className={styles.searchBtn}
-              style={{ display: 'inline-block', marginTop: '1rem', textDecoration: 'none', padding: '0.75rem 1.5rem', borderRadius: '4px' }}
+              className={`${styles.ctaBtn} ${styles.ctaBtnPrimary}`}
             >
-              Buscar en todo MedlinePlus Web →
+              Buscar en todo MedlinePlus Web
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+              </svg>
             </a>
           </div>
         )}
@@ -121,8 +130,10 @@ export default function BibliotecaPage() {
         {searched && !loading && results.length > 0 && (
           <>
             <div className={styles.resultsHeader}>
-              Mostrando "Temas de Salud" para <strong>"{query}"</strong>
+              <span>Resultados para <strong>"{query}"</strong></span>
+              <span style={{ fontSize: '0.9rem' }}>{results.length} temas encontrados</span>
             </div>
+            
             <div className={styles.resultsList}>
               {results.map((item, index) => (
                 <article key={index} className={styles.resultItem}>
@@ -136,21 +147,30 @@ export default function BibliotecaPage() {
                       {item.title}
                     </a>
                   </h2>
-                  <div className={styles.resultUrl}>{item.url}</div>
+                  <div className={styles.resultUrl}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                    </svg>
+                    {item.url}
+                  </div>
                   <p className={styles.resultSnippet}>{item.snippet}</p>
                 </article>
               ))}
             </div>
             
-            <div style={{ marginTop: '3rem', padding: '1.5rem', backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '6px', textAlign: 'center' }}>
-              <p style={{ marginBottom: '1rem', color: '#475569' }}>¿No encuentras lo que buscas? La API solo muestra temas principales.</p>
+            <div className={styles.ctaBox}>
+              <h3 style={{ margin: 0, color: '#0f172a' }}>¿Buscas algo más específico?</h3>
+              <p className={styles.ctaText}>Si no encontraste lo que buscabas entre los Temas de Salud, puedes explorar los directorios de Medicamentos o la Enciclopedia completa.</p>
               <a 
                 href={`https://vsearch.nlm.nih.gov/vivisimo/cgi-bin/query-meta?v:project=medlineplus-spanish&query=${encodeURIComponent(query)}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{ color: '#004785', fontWeight: 'bold', textDecoration: 'underline' }}
+                className={styles.ctaBtn}
               >
-                Buscar "{query}" en Medicamentos y Enciclopedia de MedlinePlus →
+                Buscar "{query}" en MedlinePlus Oficial
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+                </svg>
               </a>
             </div>
           </>
