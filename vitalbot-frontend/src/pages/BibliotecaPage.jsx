@@ -102,14 +102,26 @@ export default function BibliotecaPage() {
 
         {searched && !loading && results.length === 0 && !error && (
           <div className={styles.statusMessage}>
-            <p>No se encontraron resultados para <strong>"{query}"</strong>. Intenta usar otros términos médicos o verifica la ortografía.</p>
+            <p>No se encontraron temas de salud principales para <strong>"{query}"</strong> en la API.</p>
+            <p style={{ marginTop: '1rem', fontSize: '0.95rem' }}>
+              <em>Nota: Esta herramienta consulta los "Temas de Salud", pero MedlinePlus tiene más información (Medicamentos, Enciclopedia) en su sitio web.</em>
+            </p>
+            <a 
+              href={`https://vsearch.nlm.nih.gov/vivisimo/cgi-bin/query-meta?v:project=medlineplus-spanish&query=${encodeURIComponent(query)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.searchBtn}
+              style={{ display: 'inline-block', marginTop: '1rem', textDecoration: 'none', padding: '0.75rem 1.5rem', borderRadius: '4px' }}
+            >
+              Buscar en todo MedlinePlus Web →
+            </a>
           </div>
         )}
 
         {searched && !loading && results.length > 0 && (
           <>
             <div className={styles.resultsHeader}>
-              Mostrando resultados para <strong>"{query}"</strong>
+              Mostrando "Temas de Salud" para <strong>"{query}"</strong>
             </div>
             <div className={styles.resultsList}>
               {results.map((item, index) => (
@@ -128,6 +140,18 @@ export default function BibliotecaPage() {
                   <p className={styles.resultSnippet}>{item.snippet}</p>
                 </article>
               ))}
+            </div>
+            
+            <div style={{ marginTop: '3rem', padding: '1.5rem', backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '6px', textAlign: 'center' }}>
+              <p style={{ marginBottom: '1rem', color: '#475569' }}>¿No encuentras lo que buscas? La API solo muestra temas principales.</p>
+              <a 
+                href={`https://vsearch.nlm.nih.gov/vivisimo/cgi-bin/query-meta?v:project=medlineplus-spanish&query=${encodeURIComponent(query)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: '#004785', fontWeight: 'bold', textDecoration: 'underline' }}
+              >
+                Buscar "{query}" en Medicamentos y Enciclopedia de MedlinePlus →
+              </a>
             </div>
           </>
         )}
