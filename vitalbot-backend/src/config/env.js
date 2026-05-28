@@ -49,4 +49,5 @@ export const env = {
     'dev-only-change-in-production',
   JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || '8h',
   NODE_ENV: process.env.NODE_ENV || 'development',
+  GEMINI_API_KEY: process.env.GEMINI_API_KEY?.trim() || '',
 }

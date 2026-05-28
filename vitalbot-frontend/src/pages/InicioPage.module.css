@@ -526,3 +526,208 @@
     display: none; /* In a real app you'd add a hamburger menu */
   }
 }
+
+/* --- Nuevos Estilos para Mejoras de Consultas y Voz --- */
+
+.chatHeaderRight {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.riskBadge {
+  padding: 0.4rem 1rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.riskHigh {
+  background: #fef2f2;
+  color: #ef4444;
+  border: 1px solid #fee2e2;
+}
+
+.riskMedium {
+  background: #fffbeb;
+  color: #d97706;
+  border: 1px solid #fef3c7;
+}
+
+.riskLow {
+  background: #ecfdf5;
+  color: #10b981;
+  border: 1px solid #d1fae5;
+}
+
+.riskIndetermined {
+  background: #f1f5f9;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+}
+
+/* Micrófono (STT) */
+.micBtn {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: none;
+  background: #f1f5f9;
+  color: #64748b;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.micBtn:hover {
+  background: #e2e8f0;
+  color: #1e293b;
+}
+
+.listening {
+  background: #fef2f2 !important;
+  color: #ef4444 !important;
+  animation: pulseMic 1.5s infinite ease-in-out;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+}
+
+@keyframes pulseMic {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+/* Lector de voz (TTS) activo */
+.speaking {
+  background: #2563eb !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
+}
+
+/* Sidebar e Historial */
+.noConsults {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  font-style: italic;
+  padding: 0.5rem 0;
+  text-align: center;
+}
+
+.recentItem {
+  display: flex !important;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 0.85rem !important;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid transparent;
+}
+
+.recentItem:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.04);
+}
+
+.activeConsulta {
+  background: rgba(59, 130, 246, 0.2) !important;
+  border-color: rgba(59, 130, 246, 0.4) !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.recentItemContent {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.recentItemTitle {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: inherit;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.recentItemDate {
+  font-size: 0.7rem;
+  color: #64748b;
+  margin-top: 0.15rem;
+}
+
+.recentItem:hover .recentItemDate {
+  color: #94a3b8;
+}
+
+.riskDotMini {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-left: auto;
+  box-shadow: 0 0 6px currentColor;
+}
+
+.lowHighDot { color: #ef4444; background: #ef4444; }
+.lowMediumDot { color: #f59e0b; background: #f59e0b; }
+.lowLowDot { color: #10b981; background: #10b981; }
+.lowIndeterminedDot { color: #64748b; background: #64748b; }
+
+/* Custom parsed markdown elements in bot message */
+.parsedUl, .parsedOl {
+  margin: 0.5rem 0 0.5rem 1.25rem;
+  padding-left: 0;
+}
+
+.parsedLi {
+  margin-bottom: 0.25rem;
+  line-height: 1.5;
+}
+
+.parsedSpacer {
+  height: 0.5rem;
+}
+
+.parsedH2 {
+  margin: 1.25rem 0 0.5rem 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.parsedH3 {
+  margin: 1rem 0 0.4rem 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.parsedH4 {
+  margin: 0.75rem 0 0.3rem 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #334155;
+}
+
+.parsedBlockquote {
+  margin: 0.75rem 0;
+  padding-left: 0.75rem;
+  border-left: 3px solid #cbd5e1;
+  color: #475569;
+  font-style: italic;
+}
+
+.parsedP {
+  margin: 0 0 0.5rem 0;
+  line-height: 1.6;
+}
